@@ -33,14 +33,6 @@ for line in fh:
 
 fh.close()
 
-# with open('temp-sam.pickle', 'wb') as out:
-#    pickle.dump(mdict, out)
-
-# with open('temp-sam.pickle', 'rb') as handle:
-#    mdict = pickle.load(handle)
-
-# notice that all reads mapping to te are restricted to family level but not individual level
-
 sum_read = 0  # total read counter for future control
 uniq_nd = 0  # counter for reads that are unique-mapping but are not defined as gene or te
 multi_nd = 0  # reads with no feature define and NH>1
