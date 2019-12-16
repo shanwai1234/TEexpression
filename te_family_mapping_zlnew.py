@@ -9,6 +9,8 @@ for line in fh:
         continue  # removing reads that not aligned to reference genome
     if 'too_low_aQual' in line:
         continue  # removing reads that too low qual to reference genome
+#    if 'no_feature' in line:
+#        continue  # removing reads that no feature to reference genome
     if 'alignment_not_unique' in line:
         print ("Please editting NH:i in the input sam file! It is essential for calculating TE family based expression!")
         break  # removing reads that no feature to reference genome
@@ -30,6 +32,14 @@ for line in fh:
     mdict[read].append(rh_ann)  # storing all labels for each pair of read, i.e: gene:Zm00001g23594|20 or RLX00001Zm0001|3
 
 fh.close()
+
+# with open('temp-sam.pickle', 'wb') as out:
+#    pickle.dump(mdict, out)
+
+# with open('temp-sam.pickle', 'rb') as handle:
+#    mdict = pickle.load(handle)
+
+# notice that all reads mapping to te are restricted to family level but not individual level
 
 sum_read = 0  # total read counter for future control
 uniq_nd = 0  # counter for reads that are unique-mapping but are not defined as gene or te
@@ -187,11 +197,20 @@ def double(mdict):
                 else:
                     num1 = int(item[0].split('|')[1])
                     num2 = int(item[1].split('|')[1])
+                    name1 = item[0].split('|')[0]
+                    name2 = item[1].split('|')[0]
                     num = max(num1, num2)
-                    if num == 1:
-                        uniq_gene_te += 1
+                    if name1 == name2 and '+' not in name1:
+                        if 'gene' not in name1:
+                            tname = name1
+                            fname = name1[:8]
+                            multi_te += 1
+                            fte += 1  # multiple hits could be added for one TE family
                     else:
-                        multi_gene_te += 1
+                        if num == 1:
+                            uniq_gene_te += 1
+                        else:
+                            multi_gene_te += 1
             elif ft == 0 and plus >= 1:
                 nlist = [i for i, e in enumerate(item) if '+' not in e]
                 if len(nlist) != 0:
