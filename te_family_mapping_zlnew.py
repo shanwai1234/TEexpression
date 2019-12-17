@@ -11,6 +11,8 @@ for line in fh:
         continue  # removing reads that too low qual to reference genome
 #    if 'no_feature' in line:
 #        continue  # removing reads that no feature to reference genome
+    if 'RH:i' not in line: # removing reads that do not have any number of hits
+        continue
     if 'alignment_not_unique' in line:
         print ("Please editting NH:i in the input sam file! It is essential for calculating TE family based expression!")
         break  # removing reads that no feature to reference genome
@@ -32,6 +34,14 @@ for line in fh:
     mdict[read].append(rh_ann)  # storing all labels for each pair of read, i.e: gene:Zm00001g23594|20 or RLX00001Zm0001|3
 
 fh.close()
+
+# with open('temp-sam.pickle', 'wb') as out:
+#    pickle.dump(mdict, out)
+
+# with open('temp-sam.pickle', 'rb') as handle:
+#    mdict = pickle.load(handle)
+
+# notice that all reads mapping to te are restricted to family level but not individual level
 
 sum_read = 0  # total read counter for future control
 uniq_nd = 0  # counter for reads that are unique-mapping but are not defined as gene or te
@@ -237,6 +247,7 @@ def double(mdict):
 
     except ValueError:
         print ("This (paired) read(s) does not contain multiple labels!\n")
+        print (name)
 
     return gname, gene, tname, fname, te, fte
 
@@ -259,7 +270,6 @@ for x in sorted(mdict):
     ndict = {}
     if x not in ndict:
         ndict[x] = mdict[x]
-    print (mdict[x])
     if len(mdict[x]) == 1:
         gene_name, gene_count, te_name, fam_name, te_count, fte_count = single(ndict)  # mdict['SRRXXX'] = ['gene:Zm000|20']
         if gene_count == 1 and te_count == 0 and fte_count == 0:
